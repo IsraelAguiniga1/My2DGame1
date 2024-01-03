@@ -10,22 +10,21 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 
-public class GamePanel extends JPanel implements Runnable{// GamePanel is a JPanel
+public class GamePanel extends JPanel implements Runnable {// GamePanel is a JPanel
 
     // Screen settings
-    final int originalTileSize = 16; // 16px
-    final int scale = 3; // 3x
-    public final int tileSize = originalTileSize * scale; // 48x48px
-    public int maxScreenCol = 16;
-   public final int maxScreenRow = 12;
-    public int screenWidth = tileSize * maxScreenCol;// 864px
-    public int screenHeight = tileSize * maxScreenRow; // 672px
-
+    final int originalTileSize = 16; // original tile size is 16 x 16px
+    final int scale = 3; // scale is 3
+    public final int tileSize = originalTileSize * scale; // tile size is 48 x 48px
+    public int maxScreenCol = 16; // screen is 26 tiles wide
+    public final int maxScreenRow = 12; // screen is 16 tiles tall
+    public int screenWidth = tileSize * maxScreenCol;// 768px
+    public int screenHeight = tileSize * maxScreenRow; //   768px
     //world settings
-    public final int maxWorldCol = 50;
-    public final int maxWorldRow = 50;
-    public final int worldWidth = tileSize * maxWorldCol;
-    public final int worldHeight = tileSize * maxWorldRow;
+    public final int maxWorldCol = 50;// world is 100 tiles wide
+    public final int maxWorldRow = 50; // world is 100 tiles tall
+    public final int worldWidth = tileSize * maxWorldCol; // 4800px
+    public final int worldHeight = tileSize * maxWorldRow; // 4800px
 
     //FPS settings
     int FPS = 60;// Set target FPS
@@ -47,6 +46,7 @@ public class GamePanel extends JPanel implements Runnable{// GamePanel is a JPan
     public Entity obj[] = new Entity[10];  // Create a new SuperObject array
     public Entity npc[] = new Entity[10]; // Create a new Entity array
     public Entity monster[] = new Entity[20]; // Create a new Entity array
+    public ArrayList<Entity> projectileList = new ArrayList<>(); // Create a new ArrayList of Entity objects
     ArrayList<Entity> entityList = new ArrayList<>(); // Create a new ArrayList of Entity objects
 
     //GAME STATE
@@ -55,12 +55,10 @@ public class GamePanel extends JPanel implements Runnable{// GamePanel is a JPan
     public final int playState = 1;
     public final int pauseState = 2;
     public final int dialogueState = 3;
+    public final int characterState = 4;
 
 
-
-
-
-    public  GamePanel() {
+    public GamePanel() {
         this.setPreferredSize(new Dimension(screenWidth, screenHeight));// 864x672 pixels
         this.setBackground(Color.BLACK);// Set background color to black
         this.setDoubleBuffered(true);// Enable double buffering
@@ -68,7 +66,7 @@ public class GamePanel extends JPanel implements Runnable{// GamePanel is a JPan
         this.setFocusable(true);// Set focus to the JPanel
     }
 
-    public void setupGame(){
+    public void setupGame() {
 
         aSetter.setObject();
         aSetter.setNPC();
@@ -78,6 +76,7 @@ public class GamePanel extends JPanel implements Runnable{// GamePanel is a JPan
         gameState = titleState;
 
     }
+
     public void startGameThread() {
         gameThread = new Thread(this);// Create a new thread
         gameThread.start();// Start the thread
@@ -85,71 +84,88 @@ public class GamePanel extends JPanel implements Runnable{// GamePanel is a JPan
 
     @Override
     public void run() {
-            double drawInterval = 1000000000 / FPS;// Calculate the time between each frame
-            double nextDrawTime = System.nanoTime() + drawInterval;// Calculate the time of the next frame
+        double drawInterval = 1000000000 / FPS;// Calculate the time between each frame
+        double nextDrawTime = System.nanoTime() + drawInterval;// Calculate the time of the next frame
 
-            while (gameThread != null) {
+        while (gameThread != null) {
 
-                // While the gameThread is running
+            // While the gameThread is running
             update();
             repaint();
 
 
-                try {
-                    double remainingTime = nextDrawTime - System.nanoTime();
-                    remainingTime = remainingTime / 1000000;
+            try {
+                double remainingTime = nextDrawTime - System.nanoTime();
+                remainingTime = remainingTime / 1000000;
 
-                    if (remainingTime < 0) {
-                        remainingTime = 0;
-                    }
-
-                    Thread.sleep((long) remainingTime);
-
-                    nextDrawTime += drawInterval;
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
+                if (remainingTime < 0) {
+                    remainingTime = 0;
                 }
 
+                Thread.sleep((long) remainingTime);
+
+                nextDrawTime += drawInterval;
+            } catch (InterruptedException e) {
+                e.printStackTrace();
             }
+
+        }
     }
 
     public void update() {// Called every frame
         //GAME STATE
-        if (gameState == playState){
+        if (gameState == playState) {
             //player
             player.update();
             //NPC
-            for (int i =0;i<npc.length;i++){
-                if (npc[i] != null){
+            for (int i = 0; i < npc.length; i++) {
+                if (npc[i] != null) {
                     npc[i].update();
                 }
             }
-            for (int i =0;i<monster.length;i++){
-                if (monster[i] != null){
-                    monster[i].update();
+            for (int i = 0; i < monster.length; i++) {
+                if (monster[i] != null) {
+                    if (monster[i].alive == true&& monster[i].dying == false){
+                        monster[i].update();
+                    }
+                    if (monster[i].alive == false) {
+                        monster[i].checkDrop();
+                        monster[i] = null;
+                    }
                 }
             }
-        }
-        if (gameState == pauseState){
+            for (int i = 0; i < projectileList.size(); i++) {
+                if (projectileList.get(i) != null) {
+                    if (projectileList.get(i).alive == true){
+                        projectileList.get(i).update();
+                    }
+                    if (projectileList.get(i).alive == false) {
+                        projectileList.remove(i);
+                    }
+                }
+            }
 
-        }
+            }
+            if (gameState == pauseState) {
 
+            }
 
 
 
     }
+
     public void paintComponent(Graphics g) {
         super.paintComponent(g);// Call the super class's paintComponent method
-        Graphics2D g2 = (Graphics2D)g;// Cast the Graphics object to a Graphics2D object
+        Graphics2D g2 = (Graphics2D) g;// Cast the Graphics object to a Graphics2D object
 
         //DEBUG
-        long drawStart =0;
-        if (keyH.checkDrawTime==true){
+        long drawStart = 0;
+        if (keyH.showDebugText == true) {
             drawStart = System.nanoTime();
         }
 
         //TITLE SCREEN
-        if (gameState == titleState){
+        if (gameState == titleState) {
             ui.draw(g2);
         }
         //OTHERS
@@ -176,6 +192,11 @@ public class GamePanel extends JPanel implements Runnable{// GamePanel is a JPan
                     entityList.add(monster[i]);
                 }
             }
+            for (int i = 0; i < projectileList.size() ; i++) {// Add all the monsters to the entityList
+                if (projectileList.get(i) != null) {
+                    entityList.add(projectileList.get(i));
+                }
+            }
 
 
             //SORT
@@ -192,41 +213,49 @@ public class GamePanel extends JPanel implements Runnable{// GamePanel is a JPan
                 entityList.get(i).draw(g2);
             }
             //EMPTY ENTITY LIST
-            for (int i = 0; i < entityList.size(); i++) {// Empty the entityList
-                entityList.remove(i);
-            }
+            entityList.clear();
 
             //UI
             ui.draw(g2);
         }
 
 
-
-
-
         //DEBUG
-        if (keyH.checkDrawTime==true){
+        if (keyH.showDebugText == true) {
             long drawEnd = System.nanoTime();
             long passed = drawEnd - drawStart;
-            g2.setColor(Color.WHITE);
-            g2.drawString("Draw time: " + passed , 10, 400);
-            System.out.println("Draw time: " + passed);
-        }
 
+            g2.setFont(new Font("Arial", Font.PLAIN, 20));
+            g2.setColor(Color.WHITE);
+            int x = 10;
+            int y = 400;
+            int lineHeight = 20;
+
+            g2.drawString("WorldX: " + player.worldX, x, y); y += lineHeight;
+            g2.drawString("WorldY: " + player.worldY, x, y );y += lineHeight;
+            g2.drawString("Col: " + (player.worldX + player.solidArea.x)/tileSize, x, y ); y += lineHeight;
+            g2.drawString("Row: " + (player.worldY + player.solidArea.y)/tileSize, x, y ); y += lineHeight;
+        }
 
 
         g2.dispose();// Dispose of the Graphics2D object
     }
-    public void playMusic(int i){
+
+    public void playMusic(int i) {
         music.setFile(i);
         music.play();
         music.loop();
     }
-    public void stopMusic(){
+
+    public void stopMusic() {
         music.stop();
     }
-    public void playSE(int i){
+
+    public void playSE(int i) {
         se.setFile(i);
         se.play();
     }
 }
+
+
+

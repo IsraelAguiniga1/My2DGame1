@@ -47,9 +47,9 @@ public class EventHandler {
             canTouchEvent = true;
         }
 
-        if(canTouchEvent == true){
-            if(hit(21,21,"left")==true){damagePit(21,21,gp.dialogueState);}
-            if(hit(23,19,"any")==true){damagePit(23,19,gp.dialogueState);}
+        if(canTouchEvent == true){//if the player is close enough to the event
+          //  if(hit(21,21,"left")==true){damagePit(21,21,gp.dialogueState);}
+           // if(hit(23,19,"any")==true){damagePit(23,19,gp.dialogueState);}
             if(hit(23,12,"up")==true ) {healingPool(23,12,gp.dialogueState);}
 
 
@@ -95,6 +95,7 @@ public class EventHandler {
     public void damagePit(int col, int row,int gameState){
 
         gp.gameState = gameState;
+        gp.playSE(6);
         gp.ui.currentDialogue = "You fell into a pit and died.";
         gp.player.life -= 1 ;
        // eventRect[col][row].eventDone = true;
@@ -104,8 +105,12 @@ public class EventHandler {
 
         if (gp.keyH.enterPressed == true){
             gp.gameState = gameState;
+            gp.player.attackCancel = true;
+            gp.playSE(2);
             gp.ui.currentDialogue = "You feel refreshed.";
             gp.player.life = gp.player.maxLife;
+            gp.player.mana = gp.player.maxMana;
+            gp.aSetter.setMonster();
         }
     }
 

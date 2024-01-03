@@ -15,7 +15,7 @@ public class OBJ_Chest extends Entity {
         super(gp);
 
         name = "Chest";
-        setup("/objects/chest");
+        setup("/objects/chest",gp.tileSize,gp.tileSize);
         collision = true;
     }
 

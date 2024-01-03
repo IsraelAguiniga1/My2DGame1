@@ -20,13 +20,13 @@ public class NPC_Man extends Entity {
 
     public void getImage() {//get player image
 
-        up1 = setup("/npc/npcwalkingup");
-        up2 = setup("/npc/npcwalkingup2");
-        down1 = setup("/npc/npcwalkingdown");
-        down2 = setup("/npc/npcwalkingdown2");
-        left1 = setup("/npc/npcdown");
-        right1 = setup("/npc/npcwalkingright");
-        right2 = setup("/npc/npcwalkingright2");
+        up1 = setup("/npc/npcwalkingup", gp.tileSize, gp.tileSize);
+        up2 = setup("/npc/npcwalkingup2", gp.tileSize, gp.tileSize);
+        down1 = setup("/npc/npcwalkingdown", gp.tileSize, gp.tileSize);
+        down2 = setup("/npc/npcwalkingdown2", gp.tileSize, gp.tileSize);
+        left1 = setup("/npc/npcdown", gp.tileSize, gp.tileSize);
+        right1 = setup("/npc/npcwalkingright", gp.tileSize, gp.tileSize);
+        right2 = setup("/npc/npcwalkingright2", gp.tileSize, gp.tileSize);
     }
     public void setDialogue(){
         dialogues[0] = "Man: Hello, buddy.\n How are you? ";
@@ -36,6 +36,7 @@ public class NPC_Man extends Entity {
         dialogues[4] = "I'm fine too";
         dialogues[5] = "See you later";
         dialogues[6] = "Bye. Have a nice day. im going to the\n market and buy some\n food for my family.";
+        dialogues[7] = "1v1 me";
 
 
     }
