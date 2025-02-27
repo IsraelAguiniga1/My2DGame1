@@ -150,7 +150,7 @@ public class KeyHandler implements KeyListener {
         if (code == KeyEvent.VK_F) {
             shotKeyPressed = true;
         }
-        if (code == KeyEvent.VK_S && KeyEvent.CTRL_DOWN_MASK != 0) {
+        if (code == KeyEvent.VK_Z && KeyEvent.CTRL_DOWN_MASK != 0) {
             gp.gameState = gp.saveState;
             gp.ui.commandNum = 0;
         }

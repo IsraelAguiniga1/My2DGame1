@@ -33,7 +33,7 @@ public class Entity {
     boolean attacking = false;
     public boolean alive = true;
     public boolean dying = false;
-    boolean hpBarOn = false;
+   public boolean hpBarOn = false;
 
 
     //COUNTER
@@ -42,7 +42,7 @@ public class Entity {
     public int invincibleCounter = 0;
     public int shotAvailableCounter = 0;
     int dyingCounter = 0;
-    int hpBarCounter = 0;
+    public int hpBarCounter = 0;
 
 
     //CHARACTER ATTRIBUTES
