@@ -8,7 +8,7 @@ import java.util.Random;
 
 public class NPC_Merchant extends Entity {
 
-    ArrayList<Entity> inventory = new ArrayList<>();
+    public ArrayList<Entity> inventory = new ArrayList<>();
 
     public NPC_Merchant(GamePanel gp) {
         super(gp);

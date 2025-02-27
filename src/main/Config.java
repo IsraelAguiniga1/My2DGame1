@@ -7,20 +7,20 @@ import java.io.*;
 import java.util.ArrayList;
 
 public class Config {
-    
+
     GamePanel gp;
-    
+
     public Config(GamePanel gp) {
         this.gp = gp;
     }
-    
-    public void saveGame() {
-        try {
-            ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream("save.dat"));
-            
+
+    public void saveGame() throws IOException {
+        // Use try-with-resources to ensure streams are closed properly
+        try (ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream("save.dat"))) {
+
             // Save player stats
             DataStorage ds = new DataStorage();
-            
+
             // Player stats
             ds.level = gp.player.level;
             ds.maxLife = gp.player.maxLife;
@@ -32,36 +32,29 @@ public class Config {
             ds.exp = gp.player.exp;
             ds.nextLevelExp = gp.player.nextLevelExp;
             ds.coin = gp.player.coin;
-            
+
             // Player position
             ds.worldX = gp.player.worldX;
             ds.worldY = gp.player.worldY;
-            
+
             // Player inventory
             ds.itemNames = new String[gp.player.inventory.size()];
             for(int i = 0; i < gp.player.inventory.size(); i++) {
                 ds.itemNames[i] = gp.player.inventory.get(i).name;
             }
-            
+
             // Write object
             oos.writeObject(ds);
-            
-            // Close stream
-            oos.close();
-            gp.ui.addMessage("Game saved!");
-            
-        } catch(Exception e) {
-            System.out.println("Save exception: " + e);
         }
     }
-    
-    public void loadGame() {
-        try {
-            ObjectInputStream ois = new ObjectInputStream(new FileInputStream("save.dat"));
-            
+
+    public void loadGame() throws IOException, ClassNotFoundException {
+        // Use try-with-resources to ensure streams are closed properly
+        try (ObjectInputStream ois = new ObjectInputStream(new FileInputStream("save.dat"))) {
+
             // Load the DataStorage object
             DataStorage ds = (DataStorage)ois.readObject();
-            
+
             // Restore player stats
             gp.player.level = ds.level;
             gp.player.maxLife = ds.maxLife;
@@ -73,33 +66,34 @@ public class Config {
             gp.player.exp = ds.exp;
             gp.player.nextLevelExp = ds.nextLevelExp;
             gp.player.coin = ds.coin;
-            
+
             // Restore position
             gp.player.worldX = ds.worldX;
             gp.player.worldY = ds.worldY;
-            
+
             // Clear current inventory
             gp.player.inventory.clear();
-            
+
             // Restore inventory
-            for(String itemName : ds.itemNames) {
-                gp.player.inventory.add(getObject(itemName));
+            if (ds.itemNames != null) {
+                for(String itemName : ds.itemNames) {
+                    Entity item = getObject(itemName);
+                    if (item != null) {
+                        gp.player.inventory.add(item);
+                    }
+                }
             }
-            
-            gp.ui.addMessage("Game loaded!");
-            
-            // Close stream
-            ois.close();
-            
-        } catch(Exception e) {
-            System.out.println("Load exception: " + e);
+
+            // Update derived stats
+            gp.player.attack = gp.player.getAttack();
+            gp.player.defense = gp.player.getDefense();
         }
     }
-    
+
     // Helper method to create objects by name
     private Entity getObject(String itemName) {
         Entity obj = null;
-        
+
         switch(itemName) {
             case "Key":
                 obj = new OBJ_Key(gp);
@@ -120,7 +114,7 @@ public class Config {
                 obj = new OBJ_Potion_Red(gp);
                 break;
         }
-        
+
         return obj;
     }
 }
@@ -138,11 +132,11 @@ class DataStorage implements Serializable {
     int exp;
     int nextLevelExp;
     int coin;
-    
+
     // Player position
     int worldX;
     int worldY;
-    
+
     // Player inventory
     String[] itemNames;
 }

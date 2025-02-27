@@ -6,6 +6,9 @@ import object.OBJ_Gold;
 import object.OBJ_Heart;
 import object.OBJ_ManaCrystal;
 
+import java.awt.Color;
+import java.awt.Graphics2D;
+import java.awt.image.BufferedImage;
 import java.util.Random;
 
 public class MON_Ghost extends Entity {
@@ -13,7 +16,7 @@ public class MON_Ghost extends Entity {
     private int moveCounter = 0;
     private int phaseCounter = 0;
     private boolean phased = false;
-    
+
     public MON_Ghost(GamePanel gp) {
         super(gp);
         this.gp = gp;
@@ -33,10 +36,10 @@ public class MON_Ghost extends Entity {
         solidArea.height = 32;
         solidAreaDefaultX = solidArea.x;
         solidAreaDefaultY = solidArea.y;
-        
+
         getImage();
     }
-    
+
     public void getImage() {
         up1 = setup("/monster/ghost_up_1", gp.tileSize, gp.tileSize);
         up2 = setup("/monster/ghost_up_2", gp.tileSize, gp.tileSize);
@@ -47,15 +50,15 @@ public class MON_Ghost extends Entity {
         right1 = setup("/monster/ghost_right_1", gp.tileSize, gp.tileSize);
         right2 = setup("/monster/ghost_right_2", gp.tileSize, gp.tileSize);
     }
-    
+
     public void setAction() {
         actionLockCounter++;
-        
+
         // Randomly change direction
         if (actionLockCounter == 120) {
             Random random = new Random();
             int i = random.nextInt(100) + 1;
-            
+
             if (i <= 25) {
                 direction = "up";
             } else if (i > 25 && i <= 50) {
@@ -65,10 +68,10 @@ public class MON_Ghost extends Entity {
             } else if (i > 75 && i <= 100) {
                 direction = "right";
             }
-            
+
             actionLockCounter = 0;
         }
-        
+
         // Ghost phases in and out (can pass through walls when phased)
         phaseCounter++;
         if (phaseCounter >= 300) { // Every 5 seconds
@@ -76,12 +79,12 @@ public class MON_Ghost extends Entity {
             phaseCounter = 0;
         }
     }
-    
+
     @Override
     public void update() {
         // Override the update method to handle phasing
         setAction();
-        
+
         // Only check collisions when not phased
         if (!phased) {
             collisionOn = false;
@@ -93,7 +96,7 @@ public class MON_Ghost extends Entity {
             // When phased, we still check for player contact
             gp.cChecker.checkPlayer(this);
         }
-        
+
         // Move if no collision or if phased
         if (!collisionOn || phased) {
             switch (direction) {
@@ -103,7 +106,7 @@ public class MON_Ghost extends Entity {
                 case "right": worldX += speed; break;
             }
         }
-        
+
         // Animation
         spriteCounter++;
         if (spriteCounter > 12) {
@@ -114,7 +117,7 @@ public class MON_Ghost extends Entity {
             }
             spriteCounter = 0;
         }
-        
+
         // Invincibility frames
         if (invincible) {
             invincibleCounter++;
@@ -124,19 +127,19 @@ public class MON_Ghost extends Entity {
             }
         }
     }
-    
+
     @Override
     public void draw(Graphics2D g2) {
         int screenX = worldX - gp.player.worldX + gp.player.screenX;
         int screenY = worldY - gp.player.worldY + gp.player.screenY;
-        
+
         if (worldX + gp.tileSize > gp.player.worldX - gp.player.screenX &&
-            worldX - gp.tileSize < gp.player.worldX + gp.player.screenX &&
-            worldY + gp.tileSize > gp.player.worldY - gp.player.screenY &&
-            worldY - gp.tileSize < gp.player.worldY + gp.player.screenY) {
-            
+                worldX - gp.tileSize < gp.player.worldX + gp.player.screenX &&
+                worldY + gp.tileSize > gp.player.worldY - gp.player.screenY &&
+                worldY - gp.tileSize < gp.player.worldY + gp.player.screenY) {
+
             BufferedImage image = null;
-            
+
             switch (direction) {
                 case "up":
                     if (spriteNum == 1) image = up1;
@@ -155,25 +158,25 @@ public class MON_Ghost extends Entity {
                     if (spriteNum == 2) image = right2;
                     break;
             }
-            
+
             // HP bar
             if (type == 2 && hpBarOn) {
                 double oneScale = (double)gp.tileSize / maxLife;
                 double hpBarValue = oneScale * life;
-                
+
                 g2.setColor(Color.BLACK);
                 g2.fillRect(screenX, screenY - 16, gp.tileSize, 10);
                 g2.setColor(Color.RED);
                 g2.fillRect(screenX, screenY - 15, (int)hpBarValue, 10);
-                
+
                 hpBarCounter++;
-                
+
                 if (hpBarCounter > 600) {
                     hpBarCounter = 0;
                     hpBarOn = false;
                 }
             }
-            
+
             // Draw with transparency when phased
             if (phased) {
                 changeAlpha(g2, 0.3f);
@@ -182,27 +185,27 @@ public class MON_Ghost extends Entity {
                 hpBarCounter = 0;
                 changeAlpha(g2, 0.4f);
             }
-            
+
             if (dying) {
                 dyingAnimation(g2);
             }
-            
+
             g2.drawImage(image, screenX, screenY, null);
-            
+
             // Reset alpha
             changeAlpha(g2, 1f);
         }
     }
-    
+
     public void damageReaction() {
         actionLockCounter = 0;
         direction = gp.player.direction;
     }
-    
+
     public void checkDrop() {
         // Higher chance to drop mana crystals (ghosts are magical)
         int i = new Random().nextInt(100) + 1;
-        
+
         if (i < 50) {
             dropItem(new OBJ_Gold(gp));
         } else if (i >= 50 && i < 75) {

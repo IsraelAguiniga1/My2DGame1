@@ -48,6 +48,7 @@ public class GamePanel extends JPanel implements Runnable {// GamePanel is a JPa
     public Entity monster[] = new Entity[20]; // Create a new Entity array
     public ArrayList<Entity> projectileList = new ArrayList<>(); // Create a new ArrayList of Entity objects
     ArrayList<Entity> entityList = new ArrayList<>(); // Create a new ArrayList of Entity objects
+    public EnvironmentManager envManager = new EnvironmentManager(this);
 
     //GAME STATE
     public int gameState;

@@ -95,16 +95,21 @@ public class AssetSetter {
         gp.monster[i].worldY = gp.tileSize * 41;
         i++;
 
-        // Ghosts
-        gp.monster[i] = new MON_Ghost(gp);
-        gp.monster[i].worldX = gp.tileSize * 25;
-        gp.monster[i].worldY = gp.tileSize * 30;
-        i++;
+        // Add these lines to the setMonster method in AssetSetter.java
+// Make sure we have space in the array
+        if (i < gp.monster.length - 1) {
+            gp.monster[i] = new MON_Ghost(gp);
+            gp.monster[i].worldX = gp.tileSize * 25;
+            gp.monster[i].worldY = gp.tileSize * 30;
+            i++;
+        }
 
-        gp.monster[i] = new MON_Ghost(gp);
-        gp.monster[i].worldX = gp.tileSize * 26;
-        gp.monster[i].worldY = gp.tileSize * 31;
-        i++;
+        if (i < gp.monster.length - 1) {
+            gp.monster[i] = new MON_Ghost(gp);
+            gp.monster[i].worldX = gp.tileSize * 26;
+            gp.monster[i].worldY = gp.tileSize * 31;
+            i++;
+        }
 
 
 
@@ -116,8 +121,14 @@ public class AssetSetter {
     }
     // Add the following method to the AssetSetter class
     public void setMerchant() {
-        gp.npc[2] = new NPC_Merchant(gp);
-        gp.npc[2].worldX = gp.tileSize * 24;
-        gp.npc[2].worldY = gp.tileSize * 24;
+        // Find the first available NPC slot to avoid overwriting existing NPCs
+        for (int i = 0; i < gp.npc.length; i++) {
+            if (gp.npc[i] == null) {
+                gp.npc[i] = new NPC_Merchant(gp);
+                gp.npc[i].worldX = gp.tileSize * 24;
+                gp.npc[i].worldY = gp.tileSize * 24;
+                break;
+            }
+        }
     }
 }

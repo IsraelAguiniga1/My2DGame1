@@ -29,6 +29,8 @@ public class UI {
 
     public Entity merchant;
     public int itemIndex = 0;
+    public int subState = 0; //0: nothing, 1: buy, 2: sell
+
 
 
 

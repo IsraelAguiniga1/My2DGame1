@@ -149,11 +149,11 @@ public class KeyHandler implements KeyListener {
         if (code == KeyEvent.VK_F) {
             shotKeyPressed = true;
         }
-        if (code == KeyEvent.VK_S && (e.isControlDown() || e.isMetaDown())) {
+        if (code == KeyEvent.VK_S && KeyEvent.CTRL_DOWN_MASK != 0) {
             gp.gameState = gp.saveState;
             gp.ui.commandNum = 0;
         }
-        if (code == KeyEvent.VK_L && (e.isControlDown() || e.isMetaDown())) {
+        if (code == KeyEvent.VK_L && KeyEvent.CTRL_DOWN_MASK != 0) {
             gp.gameState = gp.loadState;
             gp.ui.commandNum = 0;
         }
@@ -172,52 +172,78 @@ public class KeyHandler implements KeyListener {
         }
     }
     public void saveState(int code) {
-        if (code == KeyEvent.VK_W) {
+        if (code == KeyEvent.VK_W || code == KeyEvent.VK_UP) {
             if (gp.ui.commandNum == 1) {
                 gp.ui.commandNum = 0;
+                gp.playSE(9);
             }
         }
 
-        if (code == KeyEvent.VK_S) {
+        if (code == KeyEvent.VK_S || code == KeyEvent.VK_DOWN) {
             if (gp.ui.commandNum == 0) {
                 gp.ui.commandNum = 1;
+                gp.playSE(9);
             }
         }
 
         if (code == KeyEvent.VK_ENTER) {
             if (gp.ui.commandNum == 0) {
                 // Save
-                gp.config.saveGame();
+                try {
+                    gp.config.saveGame();
+                    gp.ui.addMessage("Game saved successfully!");
+                } catch (Exception e) {
+                    gp.ui.addMessage("Error saving game!");
+                    System.out.println("Save error: " + e);
+                }
                 gp.gameState = gp.playState;
             } else if (gp.ui.commandNum == 1) {
                 // Do not save
                 gp.gameState = gp.playState;
             }
         }
+
+        // Also allow ESC to cancel
+        if (code == KeyEvent.VK_ESCAPE) {
+            gp.gameState = gp.playState;
+        }
     }
 
     public void loadState(int code) {
-        if (code == KeyEvent.VK_W) {
+        if (code == KeyEvent.VK_W || code == KeyEvent.VK_UP) {
             if (gp.ui.commandNum == 1) {
                 gp.ui.commandNum = 0;
+                gp.playSE(9);
             }
         }
 
-        if (code == KeyEvent.VK_S) {
+        if (code == KeyEvent.VK_S || code == KeyEvent.VK_DOWN) {
             if (gp.ui.commandNum == 0) {
                 gp.ui.commandNum = 1;
+                gp.playSE(9);
             }
         }
 
         if (code == KeyEvent.VK_ENTER) {
             if (gp.ui.commandNum == 0) {
                 // Load
-                gp.config.loadGame();
+                try {
+                    gp.config.loadGame();
+                    gp.ui.addMessage("Game loaded successfully!");
+                } catch (Exception e) {
+                    gp.ui.addMessage("Error loading game or no save file!");
+                    System.out.println("Load error: " + e);
+                }
                 gp.gameState = gp.playState;
             } else if (gp.ui.commandNum == 1) {
                 // Do not load
                 gp.gameState = gp.playState;
             }
+        }
+
+        // Also allow ESC to cancel
+        if (code == KeyEvent.VK_ESCAPE) {
+            gp.gameState = gp.playState;
         }
     }
     public void pauseState(int code){
@@ -297,10 +323,7 @@ public class KeyHandler implements KeyListener {
 
     }
     public void shopState(int code) {
-        if (code == KeyEvent.VK_ENTER) {
-            gp.gameState = gp.dialogueState;
-        }
-
+        // Navigation
         if (code == KeyEvent.VK_W) {
             if (gp.ui.commandNum > 0) {
                 gp.ui.commandNum--;
@@ -309,39 +332,111 @@ public class KeyHandler implements KeyListener {
         }
 
         if (code == KeyEvent.VK_S) {
-            if (gp.ui.commandNum < 3) {
+            if (gp.ui.commandNum < 2) {
                 gp.ui.commandNum++;
                 gp.playSE(9);
             }
         }
 
+        // Item selection - Left/Right to navigate shop items
+        if (code == KeyEvent.VK_A) {
+            if (gp.ui.itemIndex > 0) {
+                gp.ui.itemIndex--;
+                gp.playSE(9);
+            }
+        }
+
+        if (code == KeyEvent.VK_D) {
+            if (gp.ui.merchant != null &&
+                    gp.ui.itemIndex < gp.ui.merchant.inventory.size() - 1) {
+                gp.ui.itemIndex++;
+                gp.playSE(9);
+            }
+        }
+
+        // Exit shop
         if (code == KeyEvent.VK_ESCAPE) {
             gp.gameState = gp.playState;
             gp.ui.commandNum = 0;
+            gp.ui.itemIndex = 0;
         }
 
+        // Handle commands
         if (code == KeyEvent.VK_ENTER) {
-            Entity selectedItem = gp.ui.merchant.inventory.get(gp.ui.itemIndex);
+            if (gp.ui.merchant != null && gp.ui.merchant.inventory.size() > 0) {
+                Entity selectedItem = gp.ui.merchant.inventory.get(gp.ui.itemIndex);
 
-            if (gp.ui.commandNum == 0) {
-                // Buy
-                if (gp.player.coin >= selectedItem.price) {
-                    if (gp.player.inventory.size() < gp.player.maxInventorySize) {
-                        gp.player.coin -= selectedItem.price;
-                        gp.player.inventory.add(selectedItem);
-                        gp.playSE(1);
-                        gp.ui.addMessage("Bought " + selectedItem.name + "!");
+                if (gp.ui.commandNum == 0) {
+                    // Buy
+                    if (gp.player.coin >= selectedItem.price) {
+                        if (gp.player.inventory.size() < gp.player.maxInventorySize) {
+                            gp.player.coin -= selectedItem.price;
+
+                            // Create a new instance of the selected item
+                            Entity boughtItem = getItemCopy(selectedItem);
+
+                            gp.player.inventory.add(boughtItem);
+                            gp.playSE(1);
+                            gp.ui.addMessage("Bought " + selectedItem.name + "!");
+                        } else {
+                            gp.ui.addMessage("Inventory full!");
+                        }
                     } else {
-                        gp.ui.addMessage("Inventory full!");
+                        gp.ui.addMessage("Not enough coins!");
                     }
-                } else {
-                    gp.ui.addMessage("Not enough coins!");
+                }
+                else if (gp.ui.commandNum == 1) {
+                    // Sell
+                    if (gp.player.inventory.size() > 0) {
+                        // Switch to inventory selection state
+                        gp.gameState = gp.characterState;
+                        gp.ui.addMessage("Select an item to sell.");
+                        gp.ui.subState = 1; // 1 = sell mode
+                    }
+                    else {
+                        gp.ui.addMessage("You have nothing to sell!");
+                    }
+                }
+                else if (gp.ui.commandNum == 2) {
+                    // Exit
+                    gp.gameState = gp.playState;
+                    gp.ui.commandNum = 0;
+                    gp.ui.itemIndex = 0;
                 }
             }
-
-            // Sell option would be commandNum == 1
-            // Exit option would be commandNum == 2
         }
+    }
+    private Entity getItemCopy(Entity original) {
+        Entity copy = null;
+
+        // Create the appropriate item based on type
+        if (original.type == original.type_sword) {
+            copy = new object.OBJ_Sword_Normal(gp);
+        }
+        else if (original.type == original.type_shield) {
+            if (original.name.equals("Blue Shield")) {
+                copy = new object.OBJ_Shield_Blue(gp);
+            } else {
+                copy = new object.OBJ_Shield_Wood(gp);
+            }
+        }
+        else if (original.type == original.type_consumable) {
+            if (original.name.equals("Red Potion")) {
+                copy = new object.OBJ_Potion_Red(gp);
+            }
+        }
+        else if (original.type == original.type_axe) {
+            copy = new object.OBJ_Axe(gp);
+        }
+        else {
+            // Default - create a key
+            copy = new object.OBJ_Key(gp);
+        }
+
+        // Set the price to match the original
+        copy.price = original.price;
+
+        return copy;
     }
 }
 
