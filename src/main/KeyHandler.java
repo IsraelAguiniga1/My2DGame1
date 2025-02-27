@@ -1,5 +1,7 @@
 package main;
 
+import entity.Entity;
+
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 
@@ -42,6 +44,16 @@ public class KeyHandler implements KeyListener {
         //CHARACTER STATE
         else if (gp.gameState == gp.characterState){
             characterState(code);
+        }
+        //Shop state
+        else if (gp.gameState == gp.shopState) {
+            shopState(code);
+        }
+        else if (gp.gameState == gp.saveState) {
+            saveState(code);
+        }
+        else if (gp.gameState == gp.loadState) {
+            loadState(code);
         }
     }
     public void titleState(int code){
@@ -137,6 +149,14 @@ public class KeyHandler implements KeyListener {
         if (code == KeyEvent.VK_F) {
             shotKeyPressed = true;
         }
+        if (code == KeyEvent.VK_S && (e.isControlDown() || e.isMetaDown())) {
+            gp.gameState = gp.saveState;
+            gp.ui.commandNum = 0;
+        }
+        if (code == KeyEvent.VK_L && (e.isControlDown() || e.isMetaDown())) {
+            gp.gameState = gp.loadState;
+            gp.ui.commandNum = 0;
+        }
 
         //DEBUG
         if (code == KeyEvent.VK_T) {
@@ -149,6 +169,55 @@ public class KeyHandler implements KeyListener {
         if (code == KeyEvent.VK_R) {
             gp.tileM.loadMap("/maps/worldV2.txt");
             System.out.println("Map Reloaded");
+        }
+    }
+    public void saveState(int code) {
+        if (code == KeyEvent.VK_W) {
+            if (gp.ui.commandNum == 1) {
+                gp.ui.commandNum = 0;
+            }
+        }
+
+        if (code == KeyEvent.VK_S) {
+            if (gp.ui.commandNum == 0) {
+                gp.ui.commandNum = 1;
+            }
+        }
+
+        if (code == KeyEvent.VK_ENTER) {
+            if (gp.ui.commandNum == 0) {
+                // Save
+                gp.config.saveGame();
+                gp.gameState = gp.playState;
+            } else if (gp.ui.commandNum == 1) {
+                // Do not save
+                gp.gameState = gp.playState;
+            }
+        }
+    }
+
+    public void loadState(int code) {
+        if (code == KeyEvent.VK_W) {
+            if (gp.ui.commandNum == 1) {
+                gp.ui.commandNum = 0;
+            }
+        }
+
+        if (code == KeyEvent.VK_S) {
+            if (gp.ui.commandNum == 0) {
+                gp.ui.commandNum = 1;
+            }
+        }
+
+        if (code == KeyEvent.VK_ENTER) {
+            if (gp.ui.commandNum == 0) {
+                // Load
+                gp.config.loadGame();
+                gp.gameState = gp.playState;
+            } else if (gp.ui.commandNum == 1) {
+                // Do not load
+                gp.gameState = gp.playState;
+            }
         }
     }
     public void pauseState(int code){
@@ -226,6 +295,53 @@ public class KeyHandler implements KeyListener {
             shotKeyPressed = false;
         }
 
+    }
+    public void shopState(int code) {
+        if (code == KeyEvent.VK_ENTER) {
+            gp.gameState = gp.dialogueState;
+        }
+
+        if (code == KeyEvent.VK_W) {
+            if (gp.ui.commandNum > 0) {
+                gp.ui.commandNum--;
+                gp.playSE(9);
+            }
+        }
+
+        if (code == KeyEvent.VK_S) {
+            if (gp.ui.commandNum < 3) {
+                gp.ui.commandNum++;
+                gp.playSE(9);
+            }
+        }
+
+        if (code == KeyEvent.VK_ESCAPE) {
+            gp.gameState = gp.playState;
+            gp.ui.commandNum = 0;
+        }
+
+        if (code == KeyEvent.VK_ENTER) {
+            Entity selectedItem = gp.ui.merchant.inventory.get(gp.ui.itemIndex);
+
+            if (gp.ui.commandNum == 0) {
+                // Buy
+                if (gp.player.coin >= selectedItem.price) {
+                    if (gp.player.inventory.size() < gp.player.maxInventorySize) {
+                        gp.player.coin -= selectedItem.price;
+                        gp.player.inventory.add(selectedItem);
+                        gp.playSE(1);
+                        gp.ui.addMessage("Bought " + selectedItem.name + "!");
+                    } else {
+                        gp.ui.addMessage("Inventory full!");
+                    }
+                } else {
+                    gp.ui.addMessage("Not enough coins!");
+                }
+            }
+
+            // Sell option would be commandNum == 1
+            // Exit option would be commandNum == 2
+        }
     }
 }
 

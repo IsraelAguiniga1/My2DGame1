@@ -2,6 +2,8 @@ package main;
 
 
 import entity.NPC_Man;
+import entity.NPC_Merchant;
+import monster.MON_Ghost;
 import monster.MON_SQUID;
 import object.*;
 
@@ -93,6 +95,16 @@ public class AssetSetter {
         gp.monster[i].worldY = gp.tileSize * 41;
         i++;
 
+        // Ghosts
+        gp.monster[i] = new MON_Ghost(gp);
+        gp.monster[i].worldX = gp.tileSize * 25;
+        gp.monster[i].worldY = gp.tileSize * 30;
+        i++;
+
+        gp.monster[i] = new MON_Ghost(gp);
+        gp.monster[i].worldX = gp.tileSize * 26;
+        gp.monster[i].worldY = gp.tileSize * 31;
+        i++;
 
 
 
@@ -100,5 +112,12 @@ public class AssetSetter {
 
 
 
+
+    }
+    // Add the following method to the AssetSetter class
+    public void setMerchant() {
+        gp.npc[2] = new NPC_Merchant(gp);
+        gp.npc[2].worldX = gp.tileSize * 24;
+        gp.npc[2].worldY = gp.tileSize * 24;
     }
 }

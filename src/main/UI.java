@@ -1,6 +1,7 @@
 package main;
 
 import entity.Entity;
+import entity.NPC_Merchant;
 import object.OBJ_Heart;
 
 import java.awt.*;
@@ -25,6 +26,9 @@ public class UI {
     public int titleScreenState = 0; //0:
     public int slotCol = 0;
     public int slotRow = 0;
+
+    public Entity merchant;
+    public int itemIndex = 0;
 
 
 
@@ -90,9 +94,152 @@ public class UI {
             drawCharacterScreen();
             drawInventory();
         }
+        //MERCHANT STATE
+        if (gp.gameState == gp.shopState) {
+            drawShopScreen();
+        }
+        // Add these to the draw method in UI class
+// Inside the if-else chain for the gameState
+        if (gp.gameState == gp.saveState) {
+            drawSaveConfirmation();
+        }
+        if (gp.gameState == gp.loadState) {
+            drawLoadConfirmation();
+        }
 
 
 
+    }
+    // Add these methods to the UI class
+
+    public void drawSaveConfirmation() {
+        int frameX = gp.tileSize * 4;
+        int frameY = gp.tileSize * 4;
+        int frameWidth = gp.tileSize * 8;
+        int frameHeight = gp.tileSize * 3;
+
+        drawSubWindow(frameX, frameY, frameWidth, frameHeight);
+
+        g2.setColor(Color.WHITE);
+        g2.setFont(g2.getFont().deriveFont(32F));
+
+        String text = "Save your game?";
+        int textX = getXForCenteredText(text);
+        int textY = frameY + gp.tileSize;
+        g2.drawString(text, textX, textY);
+
+        // Yes option
+        text = "Yes";
+        textX = getXForCenteredText(text) - gp.tileSize;
+        textY += gp.tileSize;
+        g2.drawString(text, textX, textY);
+        if(commandNum == 0) {
+            g2.drawString(">", textX - 25, textY);
+        }
+
+        // No option
+        text = "No";
+        textX = getXForCenteredText(text) + gp.tileSize;
+        g2.drawString(text, textX, textY);
+        if(commandNum == 1) {
+            g2.drawString(">", textX - 25, textY);
+        }
+    }
+
+    public void drawLoadConfirmation() {
+        int frameX = gp.tileSize * 4;
+        int frameY = gp.tileSize * 4;
+        int frameWidth = gp.tileSize * 8;
+        int frameHeight = gp.tileSize * 3;
+
+        drawSubWindow(frameX, frameY, frameWidth, frameHeight);
+
+        g2.setColor(Color.WHITE);
+        g2.setFont(g2.getFont().deriveFont(32F));
+
+        String text = "Load saved game?";
+        int textX = getXForCenteredText(text);
+        int textY = frameY + gp.tileSize;
+        g2.drawString(text, textX, textY);
+
+        // Yes option
+        text = "Yes";
+        textX = getXForCenteredText(text) - gp.tileSize;
+        textY += gp.tileSize;
+        g2.drawString(text, textX, textY);
+        if(commandNum == 0) {
+            g2.drawString(">", textX - 25, textY);
+        }
+
+        // No option
+        text = "No";
+        textX = getXForCenteredText(text) + gp.tileSize;
+        g2.drawString(text, textX, textY);
+        if(commandNum == 1) {
+            g2.drawString(">", textX - 25, textY);
+        }
+    }
+    public void drawShopScreen() {
+        // Draw shop window
+        int x = gp.tileSize * 2;
+        int y = gp.tileSize;
+        int width = gp.tileSize * 12;
+        int height = gp.tileSize * 7;
+
+        drawSubWindow(x, y, width, height);
+
+        // Draw merchant name
+        g2.setFont(g2.getFont().deriveFont(Font.BOLD, 32F));
+        g2.setColor(Color.WHITE);
+        g2.drawString("MERCHANT", x + 24, y + 40);
+
+        // Draw player coins
+        g2.drawString("Your Coins: " + gp.player.coin, x + 24, y + 80);
+
+        // Draw items for sale
+        int itemX = x + 24;
+        int itemY = y + 120;
+        int itemHeight = 40;
+        int itemWidth = width - 48;
+
+        // Ensure itemIndex is within bounds
+        if(merchant != null && merchant instanceof NPC_Merchant) {
+            NPC_Merchant m = (NPC_Merchant)merchant;
+
+            if(itemIndex >= m.inventory.size()) {
+                itemIndex = 0;
+            }
+
+            for(int i = 0; i < m.inventory.size(); i++) {
+                Entity item = m.inventory.get(i);
+
+                if(i == itemIndex) {
+                    g2.setColor(new Color(240, 190, 90));
+                    g2.fillRoundRect(itemX, itemY + (i * itemHeight), itemWidth, itemHeight, 10, 10);
+                }
+
+                g2.setColor(Color.WHITE);
+                g2.drawString(item.name + " - " + item.price + " coins", itemX + 10, itemY + 30 + (i * itemHeight));
+            }
+
+            // Draw options
+            g2.setColor(Color.WHITE);
+            String options[] = {"Buy", "Sell", "Exit"};
+            int optionsX = x + width - 200;
+            int optionsY = y + height - 80;
+
+            for(int i = 0; i < options.length; i++) {
+                if(commandNum == i) {
+                    g2.setColor(new Color(240, 190, 90));
+                    g2.fillRoundRect(optionsX - 10, optionsY - 30 + (i * 40), 120, 40, 10, 10);
+                    g2.setColor(Color.BLACK);
+                } else {
+                    g2.setColor(Color.WHITE);
+                }
+
+                g2.drawString(options[i], optionsX, optionsY + (i * 40));
+            }
+        }
     }
     public void drawPlayerLife(){
 

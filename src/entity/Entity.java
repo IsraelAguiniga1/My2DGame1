@@ -72,6 +72,10 @@ public class Entity {
     public int useCost;
 
 
+    // SHOP
+    public int price;
+
+
     //TYPE
     public int type;// 0:player, 1:npc, 2:monster
     public final int type_player = 0;

@@ -95,7 +95,7 @@ public class Player extends Entity {
 
     public void getPlayerImage() {//get player image
 
-        up1 = setup("/player/playerwalkingup1", gp.tileSize, gp.tileSize);
+        up1 = setup("/player/playerwalkingup2", gp.tileSize, gp.tileSize);
         up2 = setup("/player/playerwalkingup2", gp.tileSize, gp.tileSize);
         down1 = setup("/player/mcwalking1", gp.tileSize, gp.tileSize);
         down2 = setup("/player/mcwalking2", gp.tileSize, gp.tileSize);

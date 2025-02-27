@@ -56,6 +56,13 @@ public class GamePanel extends JPanel implements Runnable {// GamePanel is a JPa
     public final int pauseState = 2;
     public final int dialogueState = 3;
     public final int characterState = 4;
+    public final int shopState = 5;
+    // Add these lines to the GamePanel class variables
+    public Config config = new Config(this);
+    public final int saveState = 6;
+    public final int loadState = 7;
+
+
 
 
     public GamePanel() {
@@ -70,6 +77,7 @@ public class GamePanel extends JPanel implements Runnable {// GamePanel is a JPa
 
         aSetter.setObject();
         aSetter.setNPC();
+        aSetter.setMerchant();
         aSetter.setMonster();
         playMusic(0);
         stopMusic();
@@ -144,6 +152,12 @@ public class GamePanel extends JPanel implements Runnable {// GamePanel is a JPa
                     }
                 }
             }
+            if (gameState == playState) {
+                // player, npc, monster updates...
+
+                // Add this line at the end
+                envManager.update();
+            }
 
             }
             if (gameState == pauseState) {
@@ -162,6 +176,8 @@ public class GamePanel extends JPanel implements Runnable {// GamePanel is a JPa
         long drawStart = 0;
         if (keyH.showDebugText == true) {
             drawStart = System.nanoTime();
+            g2.drawString("Time: " + gp.envManager.getDayStateName(), x, y); y += lineHeight;
+            g2.drawString("Weather: " + gp.envManager.getWeatherName(), x, y); y += lineHeight;
         }
 
         //TITLE SCREEN
@@ -212,8 +228,19 @@ public class GamePanel extends JPanel implements Runnable {// GamePanel is a JPa
             for (int i = 0; i < entityList.size(); i++) {// Draw all the entities in the entityList
                 entityList.get(i).draw(g2);
             }
+
+            if (gameState == playState || gameState == pauseState) {
+                // ...
+
+                // Add this right before UI drawing
+                envManager.draw(g2);
+
+                // UI
+                ui.draw(g2);
+            }
             //EMPTY ENTITY LIST
             entityList.clear();
+
 
             //UI
             ui.draw(g2);
