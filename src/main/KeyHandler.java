@@ -1,6 +1,7 @@
 package main;
 
 import entity.Entity;
+import entity.NPC_Merchant;
 
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
@@ -347,10 +348,12 @@ public class KeyHandler implements KeyListener {
         }
 
         if (code == KeyEvent.VK_D) {
-            if (gp.ui.merchant != null &&
-                    gp.ui.itemIndex < gp.ui.merchant.inventory.size() - 1) {
-                gp.ui.itemIndex++;
-                gp.playSE(9);
+            if (gp.ui.merchant != null && gp.ui.merchant instanceof NPC_Merchant) {
+                NPC_Merchant merchant = (NPC_Merchant) gp.ui.merchant;
+                if (gp.ui.itemIndex < merchant.inventory.size() - 1) {
+                    gp.ui.itemIndex++;
+                    gp.playSE(9);
+                }
             }
         }
 
@@ -363,45 +366,49 @@ public class KeyHandler implements KeyListener {
 
         // Handle commands
         if (code == KeyEvent.VK_ENTER) {
-            if (gp.ui.merchant != null && gp.ui.merchant.inventory.size() > 0) {
-                Entity selectedItem = gp.ui.merchant.inventory.get(gp.ui.itemIndex);
+            if (gp.ui.merchant != null && gp.ui.merchant instanceof NPC_Merchant) {
+                NPC_Merchant merchant = (NPC_Merchant) gp.ui.merchant;
 
-                if (gp.ui.commandNum == 0) {
-                    // Buy
-                    if (gp.player.coin >= selectedItem.price) {
-                        if (gp.player.inventory.size() < gp.player.maxInventorySize) {
-                            gp.player.coin -= selectedItem.price;
+                if (merchant.inventory.size() > 0 && gp.ui.itemIndex < merchant.inventory.size()) {
+                    Entity selectedItem = merchant.inventory.get(gp.ui.itemIndex);
 
-                            // Create a new instance of the selected item
-                            Entity boughtItem = getItemCopy(selectedItem);
+                    if (gp.ui.commandNum == 0) {
+                        // Buy
+                        if (gp.player.coin >= selectedItem.price) {
+                            if (gp.player.inventory.size() < gp.player.maxInventorySize) {
+                                gp.player.coin -= selectedItem.price;
 
-                            gp.player.inventory.add(boughtItem);
-                            gp.playSE(1);
-                            gp.ui.addMessage("Bought " + selectedItem.name + "!");
+                                // Create a new instance of the selected item
+                                Entity boughtItem = getItemCopy(selectedItem);
+
+                                gp.player.inventory.add(boughtItem);
+                                gp.playSE(1);
+                                gp.ui.addMessage("Bought " + selectedItem.name + "!");
+                            } else {
+                                gp.ui.addMessage("Inventory full!");
+                            }
                         } else {
-                            gp.ui.addMessage("Inventory full!");
+                            gp.ui.addMessage("Not enough coins!");
                         }
-                    } else {
-                        gp.ui.addMessage("Not enough coins!");
                     }
-                }
-                else if (gp.ui.commandNum == 1) {
-                    // Sell
-                    if (gp.player.inventory.size() > 0) {
-                        // Switch to inventory selection state
-                        gp.gameState = gp.characterState;
-                        gp.ui.addMessage("Select an item to sell.");
-                        gp.ui.subState = 1; // 1 = sell mode
+                    else if (gp.ui.commandNum == 1) {
+                        // Sell
+                        if (gp.player.inventory.size() > 0) {
+                            // Switch to inventory selection state
+                            gp.gameState = gp.characterState;
+                            gp.ui.addMessage("Select an item to sell.");
+                            gp.ui.subState = 1; // 1 = sell mode
+                        }
+                        else {
+                            gp.ui.addMessage("You have nothing to sell!");
+                        }
                     }
-                    else {
-                        gp.ui.addMessage("You have nothing to sell!");
+                    else if (gp.ui.commandNum == 2) {
+                        // Exit
+                        gp.gameState = gp.playState;
+                        gp.ui.commandNum = 0;
+                        gp.ui.itemIndex = 0;
                     }
-                }
-                else if (gp.ui.commandNum == 2) {
-                    // Exit
-                    gp.gameState = gp.playState;
-                    gp.ui.commandNum = 0;
-                    gp.ui.itemIndex = 0;
                 }
             }
         }

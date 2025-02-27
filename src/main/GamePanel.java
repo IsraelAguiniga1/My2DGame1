@@ -177,8 +177,25 @@ public class GamePanel extends JPanel implements Runnable {// GamePanel is a JPa
         long drawStart = 0;
         if (keyH.showDebugText == true) {
             drawStart = System.nanoTime();
-            g2.drawString("Time: " + gp.envManager.getDayStateName(), x, y); y += lineHeight;
-            g2.drawString("Weather: " + gp.envManager.getWeatherName(), x, y); y += lineHeight;
+
+            g2.setFont(new Font("Arial", Font.PLAIN, 20));
+            g2.setColor(Color.WHITE);
+            int x = 10;
+            int y = 400;
+            int lineHeight = 20;
+
+            g2.drawString("WorldX: " + player.worldX, x, y); y += lineHeight;
+            g2.drawString("WorldY: " + player.worldY, x, y); y += lineHeight;
+            g2.drawString("Col: " + (player.worldX + player.solidArea.x)/tileSize, x, y); y += lineHeight;
+            g2.drawString("Row: " + (player.worldY + player.solidArea.y)/tileSize, x, y); y += lineHeight;
+
+            // Add environment details
+            g2.drawString("Time: " + envManager.getDayStateName(), x, y); y += lineHeight;
+            g2.drawString("Weather: " + envManager.getWeatherName(), x, y); y += lineHeight;
+
+            long drawEnd = System.nanoTime();
+            long passed = drawEnd - drawStart;
+            g2.drawString("Draw Time: " + passed, x, y);
         }
 
         //TITLE SCREEN

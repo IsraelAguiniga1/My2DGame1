@@ -15,6 +15,7 @@ public class MON_Ghost extends Entity {
     GamePanel gp;
     private int moveCounter = 0;
     private int phaseCounter = 0;
+    // Add this variable - it was missing
     private boolean phased = false;
 
     public MON_Ghost(GamePanel gp) {
@@ -41,14 +42,16 @@ public class MON_Ghost extends Entity {
     }
 
     public void getImage() {
-        up1 = setup("/monster/ghost_up_1", gp.tileSize, gp.tileSize);
-        up2 = setup("/monster/ghost_up_2", gp.tileSize, gp.tileSize);
-        down1 = setup("/monster/ghost_down_1", gp.tileSize, gp.tileSize);
-        down2 = setup("/monster/ghost_down_2", gp.tileSize, gp.tileSize);
-        left1 = setup("/monster/ghost_left_1", gp.tileSize, gp.tileSize);
-        left2 = setup("/monster/ghost_left_2", gp.tileSize, gp.tileSize);
-        right1 = setup("/monster/ghost_right_1", gp.tileSize, gp.tileSize);
-        right2 = setup("/monster/ghost_right_2", gp.tileSize, gp.tileSize);
+        // This is a placeholder until you have actual ghost images
+        // For now, we'll use the same images as the squid monster
+        up1 = setup("/monster/monsterdown", gp.tileSize, gp.tileSize);
+        up2 = setup("/monster/monsterdown2", gp.tileSize, gp.tileSize);
+        down1 = setup("/monster/monsterdown", gp.tileSize, gp.tileSize);
+        down2 = setup("/monster/monsterdown2", gp.tileSize, gp.tileSize);
+        left1 = setup("/monster/monsterdown", gp.tileSize, gp.tileSize);
+        left2 = setup("/monster/monsterdown2", gp.tileSize, gp.tileSize);
+        right1 = setup("/monster/monsterdown", gp.tileSize, gp.tileSize);
+        right2 = setup("/monster/monsterdown2", gp.tileSize, gp.tileSize);
     }
 
     public void setAction() {
