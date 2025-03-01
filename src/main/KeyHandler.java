@@ -2,13 +2,14 @@ package main;
 
 import entity.Entity;
 import entity.NPC_Merchant;
+import object.OBJ_Teleporter;
 
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 
 public class KeyHandler implements KeyListener {
     GamePanel gp;
-    public boolean upPressed, downPressed, leftPressed, rightPressed, enterPressed,shotKeyPressed;
+    public boolean upPressed, downPressed, leftPressed, rightPressed, enterPressed, shotKeyPressed;
     //DEBUG
     boolean showDebugText = false;
 
@@ -31,7 +32,7 @@ public class KeyHandler implements KeyListener {
             titleState(code);
         }
         //PLAY STATE
-       else if (gp.gameState == gp.playState){
+        else if (gp.gameState == gp.playState){
             playState(code);
         }
         //PAUSE STATE
@@ -139,13 +140,18 @@ public class KeyHandler implements KeyListener {
             gp.gameState = gp.pauseState;
         }
         if (code == KeyEvent.VK_C) {
-
             gp.gameState = gp.characterState;
-
         }
         if (code == KeyEvent.VK_ENTER) {
-
             enterPressed = true;
+
+            // Check if player is on a teleporter
+            int objIndex = gp.cChecker.checkObject(gp.player, true);
+            if (objIndex != 999) {
+                if (gp.obj[objIndex] instanceof OBJ_Teleporter) {
+                    ((OBJ_Teleporter) gp.obj[objIndex]).use();
+                }
+            }
         }
         if (code == KeyEvent.VK_F) {
             shotKeyPressed = true;
@@ -286,43 +292,10 @@ public class KeyHandler implements KeyListener {
             }
         }
         if(code == KeyEvent.VK_ENTER) {
-
             gp.player.selectItem();
-
-
         }
     }
 
-
-
-
-    @Override
-    public void keyReleased(KeyEvent e) {// Called when a key is released
-
-        int code = e.getKeyCode();
-
-        if (code == KeyEvent.VK_W) {
-            upPressed = false;
-        }
-        if (code == KeyEvent.VK_S) {
-            downPressed = false;
-        }
-        if (code == KeyEvent.VK_A) {
-            leftPressed = false;
-        }
-        if (code == KeyEvent.VK_D) {
-            rightPressed = false;
-        }
-        if (code == KeyEvent.VK_ENTER) {
-
-            enterPressed = false;
-
-        }
-        if (code == KeyEvent.VK_F) {
-            shotKeyPressed = false;
-        }
-
-    }
     public void shopState(int code) {
         // Navigation
         if (code == KeyEvent.VK_W) {
@@ -413,6 +386,32 @@ public class KeyHandler implements KeyListener {
             }
         }
     }
+
+    @Override
+    public void keyReleased(KeyEvent e) {// Called when a key is released
+
+        int code = e.getKeyCode();
+
+        if (code == KeyEvent.VK_W) {
+            upPressed = false;
+        }
+        if (code == KeyEvent.VK_S) {
+            downPressed = false;
+        }
+        if (code == KeyEvent.VK_A) {
+            leftPressed = false;
+        }
+        if (code == KeyEvent.VK_D) {
+            rightPressed = false;
+        }
+        if (code == KeyEvent.VK_ENTER) {
+            enterPressed = false;
+        }
+        if (code == KeyEvent.VK_F) {
+            shotKeyPressed = false;
+        }
+    }
+
     private Entity getItemCopy(Entity original) {
         Entity copy = null;
 
@@ -446,5 +445,3 @@ public class KeyHandler implements KeyListener {
         return copy;
     }
 }
-
-
