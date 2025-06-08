@@ -27,6 +27,17 @@ public class KeyHandler implements KeyListener {
 
         int code = e.getKeyCode();// Get the key code of the key that was pressed
 
+        if (code == KeyEvent.VK_Z && e.isControlDown()) {
+            gp.gameState = gp.saveState;
+            gp.ui.commandNum = 0;
+            return;
+        }
+        if (code == KeyEvent.VK_L && e.isControlDown()) {
+            gp.gameState = gp.loadState;
+            gp.ui.commandNum = 0;
+            return;
+        }
+
         //TITLE STATE
         if (gp.gameState == gp.titleState) {
             titleState(code);
@@ -155,14 +166,6 @@ public class KeyHandler implements KeyListener {
         }
         if (code == KeyEvent.VK_F) {
             shotKeyPressed = true;
-        }
-        if (code == KeyEvent.VK_Z && KeyEvent.CTRL_DOWN_MASK != 0) {
-            gp.gameState = gp.saveState;
-            gp.ui.commandNum = 0;
-        }
-        if (code == KeyEvent.VK_L && KeyEvent.CTRL_DOWN_MASK != 0) {
-            gp.gameState = gp.loadState;
-            gp.ui.commandNum = 0;
         }
 
         //DEBUG
